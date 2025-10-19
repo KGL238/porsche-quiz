@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Porsche Club Paderborn — Nikolaus-Quiz</title>
+<style>
+  body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg, #111, #333);
+    color: white;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  .container {
+    text-align: center;
+    padding: 40px;
+  }
+  h1 {
+    font-size: 2em;
+    color: #e00000;
+  }
+  button {
+    background: #e00000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover {
+    background: #ff3b3b;
+  }
+  .question {
+    display: none;
+    margin-top: 20px;
+  }
+  .answers button {
+    display: block;
+    margin: 10px auto;
+    width: 60%;
+  }
+  .correct { background-color: #009e3d !important; }
+  .wrong { background-color: #a30000 !important; }
+  .result, .program { display: none; }
+  .car-scene {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+    background: #111;
+  }
+  .car {
+    position: absolute;
+    bottom: 20px;
+    left: -300px;
+    width: 250px;
+    transition: left 5s ease-in-out;
+  }
+  .firework {
+    position: absolute;
+    top: 100%;
+    width: 5px;
+    height: 20px;
+    background: red;
+    animation: firework 2s ease-out infinite;
+  }
+  @keyframes firework {
+    0% { top: 100%; opacity: 1; }
+    100% { top: -50px; opacity: 0; }
+  }
+  .program {
+    text-align: left;
+    max-width: 600px;
+    margin: 30px auto;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Nikolaus-Quiz — Porsche Club Paderborn</h1>
+  <button id="startBtn">Jetzt starten</button>
+
+  <div id="quiz"></div>
+
+  <div class="result">
+    <h2>🎉 Herzlichen Glückwunsch!</h2>
+    <p>Du hast alle Fragen richtig beantwortet.</p>
+  </div>
+
+  <div class="car-scene">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5d/Porsche_911_Carrera_S_red.png" class="car" id="car" />
+  </div>
+
+  <div class="program">
+    <h2>Nikolausfeier des Porsche Club Paderborn – Hamburg 05.–07.12.2025</h2>
+    <p><strong>Freitag, 05.12.</strong><br>
+    Anreise bis 12:00 ins Hotel Le Meridien<br>
+    13:00–14:30 Uhr Mittagessen<br>
+    15:00–16:10 Uhr Amphibienfahrt<br>
+    16:10–19:00 Uhr Freizeit<br>
+    19:00 Uhr Shuttle → Abendessen „Zum alten Lotsenhaus“<br>
+    22:45 Uhr Shuttle → Hotelbar</p>
+
+    <p><strong>Samstag, 06.12.</strong><br>
+    09:00 Uhr Treffpunkt vorm Hotel<br>
+    09:30–11:30 Uhr Frühstück im Literaturhauscafé<br>
+    14:00–16:00 Uhr Tour „Sex & Crime“ St. Pauli (18+)<br>
+    16:00–19:00 Uhr Freizeit<br>
+    19:30–23:00 Uhr Private Dining Room „Cirro im Clouds Heaven“<br>
+    23:15 Uhr Shuttle → Hotelbar</p>
+
+    <p><strong>Sonntag, 07.12.</strong><br>
+    09:00–11:00 Uhr Frühstück im Heritage<br>
+    Siegerehrung & individuelle Abreise</p>
+
+    <h3 style="text-align:center;margin-top:20px;color:#e00000;">
+      ❤️ Wir freuen uns auf Hamburg!
+    </h3>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {q:"In welchem Jahr wurde Porsche gegründet?",a:["1931","1948","1950","1963"],c:1},
+  {q:"Wie heißt das Porsche-Logo-Tier?",a:["Löwe","Pferd","Stier","Adler"],c:1},
+  {q:"Welches Modell gilt als Ikone der Marke?",a:["944","Cayenne","911","718"],c:2},
+  {q:"Wo befindet sich der Hauptsitz von Porsche?",a:["Berlin","Zuffenhausen","Ingolstadt","Leipzig"],c:1},
+  {q:"Was bedeutet das 'S' bei 911 Carrera S?",a:["Sport","Super","Speed","Special"],c:0},
+  {q:"Welches Modell war der erste Porsche?",a:["356","550 Spyder","911","Boxster"],c:0},
+  {q:"Wie viele Zylinder hat ein klassischer 911?",a:["4","6","8","12"],c:1},
+  {q:"Was ist PDK bei Porsche?",a:["Allradantrieb","Doppelkupplungsgetriebe","Hybrid","Abgasfilter"],c:1},
+  {q:"Wo ist das Porsche Museum?",a:["Hamburg","Stuttgart","München","Wolfsburg"],c:1},
+  {q:"Wie lautet der Porsche-Slogan?",a:["Vorsprung durch Technik","Nichts ist unmöglich","Es gibt keinen Ersatz","The Ultimate Driving Machine"],c:2}
+];
+
+const startBtn=document.getElementById("startBtn");
+const quizDiv=document.getElementById("quiz");
+const resultDiv=document.querySelector(".result");
+const programDiv=document.querySelector(".program");
+const car=document.getElementById("car");
+
+startBtn.onclick=()=>{
+  startBtn.style.display="none";
+  showQuestion(0);
+};
+
+function showQuestion(i){
+  if(i>=questions.length){ showResult(); return; }
+  quizDiv.innerHTML="";
+  const q=questions[i];
+  const div=document.createElement("div");
+  div.className="question";
+  div.innerHTML=`<h2>${q.q}</h2>`;
+  const answers=document.createElement("div");
+  answers.className="answers";
+  q.a.forEach((ans,index)=>{
+    const btn=document.createElement("button");
+    btn.textContent=ans;
+    btn.onclick=()=>{
+      if(index===q.c){
+        btn.classList.add("correct");
+        setTimeout(()=>showQuestion(i+1),700);
+      }else{
+        btn.classList.add("wrong");
+        setTimeout(()=>btn.classList.remove("wrong"),700);
+      }
+    };
+    answers.appendChild(btn);
+  });
+  div.appendChild(answers);
+  quizDiv.appendChild(div);
+  div.style.display="block";
+}
+
+function showResult(){
+  quizDiv.style.display="none";
+  resultDiv.style.display="block";
+  car.style.left="120%";
+  const audio=new Audio("https://www.fesliyanstudios.com/play-mp3/387");
+  audio.play();
+  setTimeout(()=>{ resultDiv.style.display="none"; programDiv.style.display="block"; },6000);
+}
+</script>
+</body>
+</html>
